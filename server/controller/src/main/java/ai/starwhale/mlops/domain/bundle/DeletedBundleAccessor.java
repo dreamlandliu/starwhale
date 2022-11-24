@@ -22,6 +22,4 @@ import java.util.List;
 public interface DeletedBundleAccessor {
 
     BundleEntity findDeletedBundleById(Long id);
-
-    List<? extends BundleEntity> listDeletedBundlesByName(String name, Long projectId);
 }

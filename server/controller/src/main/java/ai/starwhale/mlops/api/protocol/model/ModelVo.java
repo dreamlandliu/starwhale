@@ -17,9 +17,13 @@
 package ai.starwhale.mlops.api.protocol.model;
 
 import ai.starwhale.mlops.api.protocol.user.UserVo;
+import ai.starwhale.mlops.common.IdConverter;
+import ai.starwhale.mlops.domain.model.po.ModelEntity;
+import ai.starwhale.mlops.exception.ConvertException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
@@ -45,4 +49,5 @@ public class ModelVo implements Serializable {
     public static ModelVo empty() {
         return new ModelVo("", "", -1L, UserVo.empty());
     }
+
 }

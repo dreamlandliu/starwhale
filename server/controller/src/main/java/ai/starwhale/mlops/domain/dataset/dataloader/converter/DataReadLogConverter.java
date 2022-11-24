@@ -16,14 +16,14 @@
 
 package ai.starwhale.mlops.domain.dataset.dataloader.converter;
 
-import ai.starwhale.mlops.common.Convertor;
+import ai.starwhale.mlops.common.Converter;
 import ai.starwhale.mlops.domain.dataset.dataloader.bo.DataReadLog;
 import ai.starwhale.mlops.domain.dataset.dataloader.po.DataReadLogEntity;
 import ai.starwhale.mlops.exception.ConvertException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataReadLogConverter implements Convertor<DataReadLog, DataReadLogEntity> {
+public class DataReadLogConverter implements Converter<DataReadLog, DataReadLogEntity> {
 
     @Override
     public DataReadLogEntity convert(DataReadLog dataReadLog) throws ConvertException {

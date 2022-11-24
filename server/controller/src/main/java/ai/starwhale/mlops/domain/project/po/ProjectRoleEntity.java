@@ -39,10 +39,4 @@ public class ProjectRoleEntity extends BaseEntity {
     private Long roleId;
 
     private Long projectId;
-
-    private UserEntity user;
-
-    private RoleEntity role;
-
-    private ProjectEntity project;
 }

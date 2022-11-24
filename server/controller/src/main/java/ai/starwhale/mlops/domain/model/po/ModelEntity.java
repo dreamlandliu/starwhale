@@ -40,8 +40,6 @@ public class ModelEntity extends BaseEntity implements BundleEntity {
 
     private Long ownerId;
 
-    private UserEntity owner;
-
     private Integer isDeleted;
 
     @Override

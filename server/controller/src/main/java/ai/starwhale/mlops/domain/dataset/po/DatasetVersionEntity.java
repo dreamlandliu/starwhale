@@ -39,7 +39,6 @@ public class DatasetVersionEntity extends BaseEntity implements BundleVersionEnt
     private Long versionOrder;
     private String datasetName;
     private Long ownerId;
-    private UserEntity owner;
     private String versionName;
     private String versionTag;
     private String versionMeta;

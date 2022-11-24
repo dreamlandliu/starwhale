@@ -40,8 +40,6 @@ public class RuntimeVersionEntity extends BaseEntity implements BundleVersionEnt
 
     private Long ownerId;
 
-    private UserEntity owner;
-
     private String versionName;
 
     private String versionTag;
