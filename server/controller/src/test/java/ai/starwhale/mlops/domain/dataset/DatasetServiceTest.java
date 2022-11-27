@@ -302,7 +302,7 @@ public class DatasetServiceTest {
 
     @Test
     public void testListDatasetVersionHistory() {
-        given(datasetVersionMapper.listVersions(anyLong(), anyString(), anyString()))
+        given(datasetVersionMapper.list(anyLong(), anyString(), anyString()))
                 .willReturn(List.of(DatasetVersionEntity.builder().id(1L).datasetName("d1").build()));
         var res = service.listDatasetVersionHistory(
                 DatasetVersionQuery.builder()
@@ -340,7 +340,7 @@ public class DatasetServiceTest {
     public void testListModelInfo() {
         given(datasetMapper.findByName(same("d1"), same(1L), any()))
                 .willReturn(DatasetEntity.builder().id(1L).build());
-        given(datasetVersionMapper.listVersions(same(1L), any(), any()))
+        given(datasetVersionMapper.list(same(1L), any(), any()))
                 .willReturn(List.of(DatasetVersionEntity.builder().versionOrder(2L).build()));
 
         var res = service.listDs("1", "d1");

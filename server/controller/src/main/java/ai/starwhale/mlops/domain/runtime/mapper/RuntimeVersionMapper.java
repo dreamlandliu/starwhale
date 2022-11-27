@@ -36,6 +36,7 @@ public interface RuntimeVersionMapper {
     String COLUMNS = "id, version_order, runtime_id, owner_id, version_name, version_tag, version_meta,"
             + " storage_path, image, created_time, modified_time";
 
+    @SelectProvider(value = RuntimeVersionProvider.class, method = "listSql")
     List<RuntimeVersionEntity> list(@Param("runtimeId") Long runtimeId,
             @Param("namePrefix") String namePrefix, @Param("tag") String tag);
 
@@ -57,7 +58,7 @@ public interface RuntimeVersionMapper {
     @Select("select max(version_order) as max from runtime_version where runtime_id = #{runtimeId}")
     Long selectMaxVersionOrderOfRuntimeForUpdate(@Param("runtimeId") Long runtimeId);
 
-    @Select("update runtime_version set version_order = #{versionOrder} where id = #{id}")
+    @Update("update runtime_version set version_order = #{versionOrder} where id = #{id}")
     int updateVersionOrder(@Param("id") Long id, @Param("versionOrder") Long versionOrder);
 
     @Insert("insert into runtime_version (runtime_id, owner_id, version_name, version_tag, version_meta,"
@@ -68,10 +69,10 @@ public interface RuntimeVersionMapper {
     int insert(RuntimeVersionEntity version);
 
     @UpdateProvider(value = RuntimeVersionProvider.class, method = "updateSql")
-    int update(@Param("version") RuntimeVersionEntity version);
+    int update(RuntimeVersionEntity version);
 
     @Update("update runtime_version set version_tag = #{tag} where id = #{id}")
-    int updateTag(@Param("versionId") Long versionId, @Param("tag") String tag);
+    int updateTag(@Param("id") Long id, @Param("tag") String tag);
 
     @SelectProvider(value = RuntimeVersionProvider.class, method = "findByNameAndRuntimeIdSql")
     RuntimeVersionEntity findByNameAndRuntimeId(@Param("versionName") String versionName,
@@ -84,6 +85,25 @@ public interface RuntimeVersionMapper {
             @Param("runtimeId") Long runtimeId);
 
     class RuntimeVersionProvider {
+
+        public String listSql(@Param("runtimeId") Long runtimeId,
+                @Param("namePrefix") String namePrefix,
+                @Param("tag") String tag) {
+            return new SQL() {
+                {
+                    SELECT(COLUMNS);
+                    FROM("runtime_version");
+                    WHERE("runtime_id = #{runtimeId}");
+                    if(StrUtil.isNotEmpty(namePrefix)) {
+                        WHERE("version_name like concat(#{namePrefix}, '%')");
+                    }
+                    if(StrUtil.isNotEmpty(tag)) {
+                        WHERE("FIND_IN_SET(#{tag}, version_tag)");
+                    }
+                    ORDER_BY("version_order desc");
+                }
+            }.toString();
+        }
 
         public String findByNameAndRuntimeIdSql(@Param("versionName") String versionName,
                 @Param("runtimeId") Long runtimeId) {

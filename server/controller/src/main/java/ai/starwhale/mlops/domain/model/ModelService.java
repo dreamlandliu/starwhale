@@ -190,7 +190,7 @@ public class ModelService {
     }
 
     public List<ModelInfoVo> listModelInfoOfModel(ModelEntity model) {
-        List<ModelVersionEntity> versions = modelVersionMapper.listVersions(
+        List<ModelVersionEntity> versions = modelVersionMapper.list(
                 model.getId(), null, null);
         if (versions == null || versions.isEmpty()) {
             return List.of();
@@ -291,7 +291,7 @@ public class ModelService {
         Long modelId = bundleManager.getBundleId(BundleUrl
                 .create(query.getProjectUrl(), query.getModelUrl()));
         PageHelper.startPage(pageParams.getPageNum(), pageParams.getPageSize());
-        List<ModelVersionEntity> entities = modelVersionMapper.listVersions(
+        List<ModelVersionEntity> entities = modelVersionMapper.list(
                 modelId, query.getVersionName(), query.getVersionTag());
         ModelVersionEntity latest = modelVersionMapper.findByLatest(modelId);
         return PageUtil.toPageInfo(entities, entity -> {

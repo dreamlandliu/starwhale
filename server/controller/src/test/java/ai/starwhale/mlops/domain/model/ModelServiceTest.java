@@ -256,7 +256,7 @@ public class ModelServiceTest {
     public void testListModelInfo() {
         given(modelMapper.findByName(same("m1"), same(1L), any()))
                 .willReturn(ModelEntity.builder().id(1L).build());
-        given(modelVersionMapper.listVersions(same(1L), any(), any()))
+        given(modelVersionMapper.list(same(1L), any(), any()))
                 .willReturn(List.of(ModelVersionEntity.builder().versionOrder(2L).build()));
 
         var res = service.listModelInfo("1", "m1");
@@ -339,7 +339,7 @@ public class ModelServiceTest {
 
     @Test
     public void testListModelVersionHistory() {
-        given(modelVersionMapper.listVersions(anyLong(), anyString(), anyString()))
+        given(modelVersionMapper.list(anyLong(), anyString(), anyString()))
                 .willReturn(List.of(ModelVersionEntity.builder().id(1L).modelName("m1").build()));
         var res = service.listModelVersionHistory(
                 ModelVersionQuery.builder()

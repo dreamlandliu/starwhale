@@ -36,7 +36,9 @@ public interface ModelVersionMapper {
     String COLUMNS = "id, version_order, model_id, owner_id, version_name, version_tag, version_meta,"
             + " storage_path, manifest, created_time, modified_time, eval_jobs";
 
-    List<ModelVersionEntity> listVersions(@Param("modelId") Long modelId, @Param("namePrefix") String namePrefix,
+    @SelectProvider(value = ModelVersionProvider.class, method = "listSql")
+    List<ModelVersionEntity> list(@Param("modelId") Long modelId,
+            @Param("namePrefix") String namePrefix,
             @Param("tag") String tag);
 
     @Select("select " + COLUMNS + " from model_version where id = #{id}")
@@ -57,7 +59,7 @@ public interface ModelVersionMapper {
     @Select("select max(version_order) as max from model_version where model_id = #{modelId}")
     Long selectMaxVersionOrderOfModelForUpdate(@Param("modelId") Long modelId);
 
-    @Select("update model_version set version_order = #{versionOrder} where id = #{id}")
+    @Update("update model_version set version_order = #{versionOrder} where id = #{id}")
     int updateVersionOrder(@Param("id") Long id, @Param("versionOrder") Long versionOrder);
 
     @Insert("insert into model_version (model_id, owner_id, version_name, version_tag, version_meta,"
@@ -71,7 +73,7 @@ public interface ModelVersionMapper {
     int update(ModelVersionEntity version);
 
     @Update("update model_version set version_tag = #{tag} where id = #{id}")
-    int updateTag(@Param("versionId") Long versionId, @Param("tag") String tag);
+    int updateTag(@Param("id") Long id, @Param("tag") String tag);
 
     @SelectProvider(value = ModelVersionProvider.class, method = "findByNameAndModelIdSql")
     ModelVersionEntity findByNameAndModelId(@Param("versionName") String versionName, @Param("modelId") Long id);
@@ -83,6 +85,25 @@ public interface ModelVersionMapper {
             @Param("modelId") Long modelId);
 
     class ModelVersionProvider {
+
+        public String listSql(@Param("modelId") Long modelId,
+                @Param("namePrefix") String namePrefix,
+                @Param("tag") String tag) {
+            return new SQL() {
+                {
+                    SELECT(COLUMNS);
+                    FROM("model_version");
+                    WHERE("model_id = #{modelId}");
+                    if(StrUtil.isNotEmpty(namePrefix)) {
+                        WHERE("version_name like concat(#{namePrefix}, '%')");
+                    }
+                    if(StrUtil.isNotEmpty(tag)) {
+                        WHERE("FIND_IN_SET(#{tag}, version_tag)");
+                    }
+                    ORDER_BY("version_order desc");
+                }
+            }.toString();
+        }
 
         public String findByNameAndModelIdSql(@Param("versionName") String versionName,
                 @Param("modelId") Long modelId) {

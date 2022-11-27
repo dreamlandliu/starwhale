@@ -242,7 +242,7 @@ public class DatasetService {
     public PageInfo<DatasetVersionVo> listDatasetVersionHistory(DatasetVersionQuery query, PageParams pageParams) {
         Long datasetId = bundleManager.getBundleId(BundleUrl.create(query.getProjectUrl(), query.getDatasetUrl()));
         PageHelper.startPage(pageParams.getPageNum(), pageParams.getPageSize());
-        List<DatasetVersionEntity> entities = datasetVersionMapper.listVersions(
+        List<DatasetVersionEntity> entities = datasetVersionMapper.list(
                 datasetId, query.getVersionName(), query.getVersionTag());
         DatasetVersionEntity latest = datasetVersionMapper.findByLatest(datasetId);
         return PageUtil.toPageInfo(entities, entity -> {
@@ -287,7 +287,7 @@ public class DatasetService {
     }
 
     private List<DatasetInfoVo> swDatasetInfoOfDs(DatasetEntity ds) {
-        List<DatasetVersionEntity> versionEntities = datasetVersionMapper.listVersions(
+        List<DatasetVersionEntity> versionEntities = datasetVersionMapper.list(
                 ds.getId(), null, null);
         if (null == versionEntities || versionEntities.isEmpty()) {
             return List.of();
