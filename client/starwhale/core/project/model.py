@@ -6,8 +6,9 @@ from abc import ABCMeta, abstractmethod
 from pathlib import Path
 
 import yaml
-
-from starwhale.utils import validate_obj_name
+from starwhale.base.cloud import CloudRequestMixed
+from starwhale.base.type import URIType, InstanceType
+from starwhale.base.uri import URI
 from starwhale.consts import (
     HTTPMethod,
     DEFAULT_PROJECT,
@@ -16,13 +17,11 @@ from starwhale.consts import (
     DEFAULT_PAGE_SIZE,
     SHORT_VERSION_CNT,
 )
-from starwhale.base.uri import URI
-from starwhale.utils.fs import move_dir, ensure_dir, get_path_created_time
-from starwhale.base.type import URIType, InstanceType
-from starwhale.base.cloud import CloudRequestMixed
-from starwhale.utils.http import ignore_error
-from starwhale.utils.error import NoSupportError
+from starwhale.utils import validate_obj_name
 from starwhale.utils.config import SWCliConfigMixed
+from starwhale.utils.error import NoSupportError
+from starwhale.utils.fs import move_dir, ensure_dir, get_path_created_time
+from starwhale.utils.http import ignore_error
 
 _SHOW_ALL = 100
 
@@ -202,8 +201,9 @@ class CloudProject(Project, CloudRequestMixed):
                 dict(
                     id=_p["id"],
                     name=_p["name"],
-                    created_at=crm.fmt_timestamp(_p["createdTime"]),  # type: ignore
-                    is_default=_p["isDefault"],
+                    created_at=crm.fmt_timestamp(_p["createdTime"]),
+                    # type: ignore
+                    is_default=_p.get("isDefault", 0),
                     owner=owner,
                 )
             )
