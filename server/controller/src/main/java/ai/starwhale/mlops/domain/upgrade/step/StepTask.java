@@ -17,6 +17,7 @@
 package ai.starwhale.mlops.domain.upgrade.step;
 
 import ai.starwhale.mlops.domain.upgrade.bo.Upgrade;
+import ai.starwhale.mlops.domain.upgrade.bo.Upgrade.STATUS;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 
@@ -62,6 +63,7 @@ public class StepTask implements Runnable {
         } else {
             future.cancel(false);
             future = null;
+            upgrade.setStatus(STATUS.COMPLETE);
             return null;
         }
     }

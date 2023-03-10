@@ -52,7 +52,7 @@ public class UpgradeService {
     private final JobService jobService;
     private final K8sClient k8sClient;
     private final UpgradeStepManager upgradeStepManager;
-    private final String versionNumber;
+    private final String currentVersionNumber;
     private static final String LOCK_OPERATOR = "upgrade";
     private final AtomicReference<Upgrade> upgradeAtomicReference;
 
@@ -67,7 +67,7 @@ public class UpgradeService {
         this.controllerLock = controllerLock;
         this.jobService = jobService;
         this.k8sClient = k8sClient;
-        this.versionNumber = StrUtil.subBefore(starwhaleVersion, ":", false);
+        this.currentVersionNumber = StrUtil.subBefore(starwhaleVersion, ":", false);
         this.upgradeAtomicReference = new AtomicReference<>();
         this.upgradeStepManager = upgradeStepManager;
     }
@@ -87,7 +87,7 @@ public class UpgradeService {
             Upgrade upgrade = new Upgrade(progressId,
                     version,
                     image,
-                    version,
+                    currentVersionNumber,
                     getCurrentImage(),
                     STATUS.UPGRADING);
             doUpgrade(upgrade);
@@ -135,9 +135,13 @@ public class UpgradeService {
         }
     }
 
-    private void checkIsUpgradeAllowed(String version) {
+    private void checkIsUpgradeAllowed(String newVersion) {
         // Check whether upgrade is allowed:
-        // 0. Check all Pods are ready (No upgrade process is running)
+        // 0. new version is later than current version
+        if (StrUtil.compareVersion(newVersion, currentVersionNumber) <= 0) {
+            throw new SwValidationException(ValidSubject.UPGRADE, "New version must be later than the current version");
+        }
+        // 1. all Pods are ready (No upgrade process is running)
         try {
 
             List<V1Pod> notReadyPods = k8sClient.getNotReadyPods(LABEL_CONTROLLER);
@@ -148,13 +152,13 @@ public class UpgradeService {
             throw new SwProcessException(ErrorType.K8S, "K8sClient Error", e);
         }
 
-        // 1. no hot job is remaining
+        // 2. no hot job is remaining
         List<Job> jobs = jobService.listHotJobs();
         if (jobs.size() > 0) {
             throw new SwValidationException(ValidSubject.UPGRADE, "There are still remaining hot jobs.");
         }
 
-        //TODO 2. terminate datastore
+        //TODO 3. terminate datastore
 
     }
 
@@ -166,7 +170,7 @@ public class UpgradeService {
 
     private String buildUuid() {
         // Build upgrade progress uuid. It Contains current server version.
-        return String.format("%s_%s", versionNumber, IdUtil.simpleUUID());
+        return String.format("%s_%s", currentVersionNumber, IdUtil.simpleUUID());
     }
 
     private void doUpgrade(Upgrade upgrade) {
@@ -182,6 +186,9 @@ public class UpgradeService {
 
     private void doCancel(Upgrade upgrade) {
         log.info("The upgrade progress is cancelled.");
+
+        upgrade.setStatus(STATUS.CANCELLING);
         upgradeAccess.setStatusToNormal();
+        upgrade.setStatus(STATUS.CANCELED);
     }
 }
