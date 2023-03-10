@@ -94,7 +94,7 @@ public class UpgradeService {
 
             return upgrade;
         } catch (Exception e) {
-            cancelUpgrade();
+            controllerLock.unlock(ControllerLock.TYPE_WRITE_REQUEST, LOCK_OPERATOR);
             throw e;
         }
     }
