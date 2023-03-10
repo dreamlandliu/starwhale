@@ -30,19 +30,11 @@ import ai.starwhale.mlops.exception.SwValidationException.ValidSubject;
 import ai.starwhale.mlops.schedule.k8s.K8sClient;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.AppsV1Api;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Deployment;
 import io.kubernetes.client.openapi.models.V1DeploymentList;
 import io.kubernetes.client.openapi.models.V1DeploymentSpec;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodSpec;
-import io.kubernetes.client.util.ClientBuilder;
-import io.kubernetes.client.util.KubeConfig;
-import java.io.FileReader;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -78,18 +70,6 @@ public class UpgradeService {
         this.versionNumber = StrUtil.subBefore(starwhaleVersion, ":", false);
         this.upgradeAtomicReference = new AtomicReference<>();
         this.upgradeStepManager = upgradeStepManager;
-    }
-
-    public void isUpgrading() {
-        // Check whether the server status is upgrading
-        log.info("Checking upgrade.");
-//        if (upgradeAccess.isUpgrading()) {
-//            String uuid = upgradeAccess.getUpgradeProcessId();
-//            if (!isCurrentServerVersion(uuid)) {
-//                doUpgrade(uuid);
-//            }
-//        }
-
     }
 
     public Upgrade upgrade(String version, String image) {
@@ -203,21 +183,5 @@ public class UpgradeService {
     private void doCancel(Upgrade upgrade) {
         log.info("The upgrade progress is cancelled.");
         upgradeAccess.setStatusToNormal();
-    }
-
-    public static void main(String[] args) throws Exception {
-        String configPath = "\\\\wsl.localhost\\Ubuntu-20.04\\home\\liuyunxi\\.kube\\config";
-        ApiClient client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(configPath))).build();
-        Configuration.setDefaultApiClient(client);
-        CoreV1Api coreV1Api = new CoreV1Api();
-        AppsV1Api appsV1Api = new AppsV1Api();
-
-        V1DeploymentList deployment = appsV1Api.listNamespacedDeployment("liuyunxi", null, null, null, null,
-                "starwhale.ai/role=controller", null, null, null, null, null);
-
-        for (V1Deployment item : deployment.getItems()) {
-            System.out.println(item);
-            System.out.println(item.getSpec().getTemplate().getSpec().getContainers().get(0).getImage());
-        }
     }
 }

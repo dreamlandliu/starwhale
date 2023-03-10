@@ -24,16 +24,7 @@ import ai.starwhale.mlops.exception.SwProcessException.ErrorType;
 import ai.starwhale.mlops.schedule.k8s.K8sClient;
 import cn.hutool.json.JSONArray;
 import io.kubernetes.client.custom.V1Patch;
-import io.kubernetes.client.openapi.ApiClient;
 import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.AppsV1Api;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Deployment;
-import io.kubernetes.client.util.ClientBuilder;
-import io.kubernetes.client.util.KubeConfig;
-import io.kubernetes.client.util.PatchUtils;
-import java.io.FileReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -91,58 +82,6 @@ public class UpdateK8sImage extends UpgradeStepBase {
     @Override
     protected String getContent() {
         return "";
-    }
-
-
-    public static void main(String[] args) throws Exception {
-
-        JSONArray patchJson = new JSONArray(List.of(
-                Map.of(
-                        "op", "replace",
-                        "path", "/spec/template/spec/containers/0/image",
-                        "value", "ghcr.io/star-whale/server:0.4.0"
-                )
-        ));
-
-        String configPath = "\\\\wsl.localhost\\Ubuntu-20.04\\home\\liuyunxi\\.kube\\config";
-        ApiClient client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(configPath))).build();
-        Configuration.setDefaultApiClient(client);
-        CoreV1Api coreV1Api = new CoreV1Api();
-        AppsV1Api appsV1Api = new AppsV1Api();
-
-        V1Deployment deployment = PatchUtils.patch(
-                V1Deployment.class,
-                () -> appsV1Api.patchNamespacedDeploymentCall(
-                        "controller",
-                        "liuyunxi",
-                        new V1Patch(patchJson.toString()),
-                        null, null, null, null, null, null),
-                V1Patch.PATCH_FORMAT_JSON_PATCH,
-                client);
-
-        System.out.println(deployment);
-//
-//        V1NamespaceList list = coreV1Api.listNamespace(null, false, null, null, null, null, null, null, null,
-//                false);
-//
-////        for (V1Namespace item : list.getItems()) {
-////            System.out.println(item.getMetadata().getName());
-////        }
-//
-//        String ns = "liuyunxi";
-//        String labelSelector = "starwhale.ai/role=controller";
-//        V1PodList pods = coreV1Api.listNamespacedPod(ns, null, null, null, null, labelSelector, null, null, null, 30,
-//                null);
-//
-//        V1DeploymentList v1DeploymentList = appsV1Api.listNamespacedDeployment(ns, null, false, null, null,
-//                labelSelector, null,
-//                null, null, null, null);
-//
-//        for (V1Deployment item : v1DeploymentList.getItems()) {
-//
-//            System.out.println(item);
-//        }
-
     }
 
 

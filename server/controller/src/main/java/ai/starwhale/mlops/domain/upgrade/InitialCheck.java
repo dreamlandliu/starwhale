@@ -25,17 +25,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class InitialCheck implements InitializingBean {
 
-    private final UpgradeService upgradeService;
-
-    public InitialCheck(UpgradeService upgradeService) {
-        this.upgradeService = upgradeService;
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
         log.info("Starwhale-Controller initial check started.");
         try {
-            //upgradeService.upgrade("0.3.6", "ghcr.io/star-whale/server:0.3.6");
+
         } catch (SwProcessException e) {
             log.error("", e);
         }
